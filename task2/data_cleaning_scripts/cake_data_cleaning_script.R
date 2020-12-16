@@ -32,11 +32,11 @@ cake_data_simplified <- cake_data_longer %>%
   drop_na()
 
 clean_cake_data_simplified <- clean_names(cake_data_simplified)
-view(clean_cake_data_simplified)
+#view(clean_cake_data_simplified)
 
-view(clean_cake_data_simplified)
+#view(clean_cake_data_simplified)
 
-view(cake_codes)
+#view(cake_codes)
 
 cake_date_joined <- inner_join(clean_cake_data_simplified, cake_codes,
            by=c("ingredients" = "code"))
@@ -81,11 +81,11 @@ rearranged_cakes %>%
 
  #4. Which cake has the most unique ingredients?
 cake_data_ingredient_counted <- rearranged_cakes %>% 
-  group_by(ingredient) %>% 
-    mutate(ingredient_count = n()) #%>% 
+  group_by(cake) %>% 
+    summarise(ingredient_count = n()) #%>% 
     #arrange((ingredient_count))
 
-#view (cake_data_ingredient_counted)
+view (cake_data_ingredient_counted)
 
 cake_data_ingredient_counted %>%
   group_by(cake) %>% 
@@ -102,5 +102,5 @@ rearranged_cakes %>%
   group_by(ingredient) %>% 
   summarise(count = n()) %>%
   filter(count == 1)
-  #slice_min(count)
+
   

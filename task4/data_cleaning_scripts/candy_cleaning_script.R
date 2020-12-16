@@ -95,16 +95,36 @@ candy_data_2017_test_longer <- candy_data_2017_test %>%
 
 #remove the "Q6" from the sweet names
 final_data_17 <- candy_data_2017_test_longer %>% 
-  mutate(sweets = str_remove_all(sweets, "Q6 \\|"))
+  mutate(sweets = str_remove_all(sweets, "Q6 \\| "))
 
-#combine the data from the 3 years
+#combine the data from all 3 years
 candy_data_combined_15_16_17 <- rbind(final_data_15_16, 
                                       final_data_17)
+#view(candy_data_combined_15_16_17)
+
+
+#extract only numeric characters from age column
+candy_data_combined_15_16_17 <- candy_data_combined_15_16_17 %>%
+  mutate(age = str_extract(age, "[0-9]?[0-9]?[0-9]?")) %>% 
+  mutate(age = as.numeric(age)) %>% 
+  #only include ages between 0-99 (I assume babies get 
+  #counted whilst parents eat candy on their behalf)
+ mutate(age = ifelse(age > 99, NA, age))
+
+   
+
+
+ 
 
 
 
 
 
+
+#write_csv(str_test, "raw_data/str_test11.csv")
+
+
+#tail(str_test)
 #df %>% filter(!grepl("^1", y))
 
 
@@ -123,9 +143,79 @@ candy_data_combined_15_16_17 %>%
 #2. What was the average age of people who are going out trick or treating 
 #and the average age of people not going trick or treating?
 
+#answer when going out trick or treating
+candy_data_q2_yes <- candy_data_combined_15_16_17 %>%
+  filter(trick_or_treat == "Yes")
 
+candy_data_q2_yes <- candy_data_q2_yes %>%
+  mutate(average_age = median(age, na.rm = TRUE))
+head(candy_data_q2_yes, 1)
 
+#answer when not going out trick or treating
+candy_data_q2_no <- candy_data_combined_15_16_17 %>%
+  filter(trick_or_treat == "No")
 
+candy_data_q2_no <- candy_data_q2_no %>%
+  mutate(average_age = median(age, na.rm = TRUE))
+  head(candy_data_q2_no, 1)
+
+  
+#3. For each of joy, despair and meh, 
+#which candy bar revived the most of these ratings?
+  #for Joy:
+  
+ # candy_data_combined_15_16_17 %>% 
+#    select(sweets, opinion) %>% 
+#   filter(grepl("bar", sweets)) %>% 
+#  filter(!is.na(opinion)) %>% 
+#  group_by(opinion, sweets) %>% 
+#  summarise(count = n()) %>% 
+#  filter(count == max(count))
+  
+  candy_data_combined_15_16_17 %>% 
+    filter(grepl("[Bb][Aa][Rr]", sweets)) %>% 
+    group_by(sweets, opinion) %>% 
+    summarise(count = n()) %>% 
+    arrange(desc(count)) %>% 
+    filter(opinion == "JOY") %>% 
+    head(1)
+  
+  #for Despair:
+  candy_data_combined_15_16_17 %>%
+    filter(grepl("[Bb][Aa][Rr]", sweets)) %>% 
+    group_by(sweets, opinion) %>% 
+    summarise(count = n()) %>% 
+    arrange(desc(count)) %>% 
+    filter(opinion == "DESPAIR") %>% 
+    head(1)
+  
+  #for Meh:
+  candy_data_combined_15_16_17 %>%
+    filter(grepl("[Bb][Aa][Rr]", sweets)) %>% 
+    group_by(sweets, opinion) %>% 
+    summarise(count = n()) %>% 
+    arrange(desc(count)) %>% 
+    filter(opinion == "MEH") %>% 
+    head(1)
+  
+  #4. How many people rated Starburst as despair?
+  
+  candy_data_combined_15_16_17 %>%
+    filter(grepl("[Ss][Tt][Aa][Rr][Bb][Uu][Rr][Ss][Tt]", sweets)) %>%
+    filter(opinion == "DESPAIR") %>%
+    summarise(count = n())
+  
+  
+  
+  
+  
+  
+#candy_data_combined_15_16_17 %>% 
+#  filter(trick_or_treat == "No" | trick_or_treat == "Yes") %>% 
+ # group_by(trick_or_treat) %>% 
+#  summarise(
+ #   mutate(average_age = median(age, na.rm = TRUE))
+#  ) 
 
 #write_excel_csv(filtered, "raw_data/filtered2.csv")
 
@@ -138,8 +228,8 @@ candy_data_combined_15_16_17 %>%
 
 
 #=======================================================
-#write_excel_csv(candy_data_combined_15_16_17, 
-   #             "raw_data/excel_data_combined.csv")
+write_excel_csv(candy_data_combined_15_16_17, 
+               "raw_data/final_data.csv")
 
 #=======================================================
 
