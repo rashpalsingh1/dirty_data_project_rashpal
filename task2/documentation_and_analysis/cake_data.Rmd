@@ -1,0 +1,99 @@
+---
+title: "Cake data"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, include=FALSE}
+library(here)
+library(readxl)
+library(tidyverse)
+```
+
+```{r, include=FALSE}
+here::here()
+
+cake_data_final <- read_csv(here("clean_data/final_cakes.csv"))
+
+
+```
+
+# Dataset Introduction
+
+This dataset gives the ingredients for a number of desserts.
+The small data set meant that few assumptions needed to be made.
+
+The steps to clean the data, with appropriate comments, are provided in a
+separate script. 
+&nbsp;
+&nbsp;
+&nbsp;
+# Analysis
+
+
+### 1.Which cake has the most cocoa in it?
+```{r}
+cake_data_final %>% 
+  filter(ingredient == "Cocoa") %>%
+  slice_max(amount, n = 1)
+```
+
+### Answer: One Bowl Chocolate
+&nbsp;
+&nbsp;
+&nbsp;
+
+### 2. For sponge cake, how many cups of ingredients are used in total?
+```{r}
+cake_data_final%>%
+  filter(measure == "cup" & cake == "Sponge") %>% 
+  summarise(total = sum(amount))
+```
+
+### Answer: 3.5 cups of ingredients are used in total
+&nbsp;
+&nbsp;
+&nbsp;
+
+### 3. How many ingredients are measured in teaspoons?
+```{r}
+cake_data_final %>% 
+  filter(measure == "teaspoon") %>% 
+  #need to count each ingredient once only
+  distinct(ingredient) %>% 
+  summarise(count = n()) 
+```
+
+### Answer: 8 ingredients are measured with teaspoons
+&nbsp;
+&nbsp;
+&nbsp;
+
+### 4. Which cake has the most unique ingredients?
+```{r}
+ingredient_count <- cake_data_final %>% 
+  group_by(cake) %>% 
+    mutate(total = sum(ingredient_count = n())) 
+ingredient_count %>% 
+  summarise(cake_total = sum(total)) %>% 
+  arrange(cake_total) %>% 
+  head(1)
+```
+### Answer: Buche de Noel has the most unique ingredients
+&nbsp;
+&nbsp;
+&nbsp;
+
+### 5. Which ingredients are used only once?
+```{r}
+cake_data_final %>%
+  group_by(ingredient) %>% 
+  summarise(count = n()) %>%
+  filter(count == 1)
+```
+### Answer: 8 ingredients are used only once as listed above
+ 
+

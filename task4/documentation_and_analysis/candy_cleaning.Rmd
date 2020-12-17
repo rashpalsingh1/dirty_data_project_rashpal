@@ -1,0 +1,180 @@
+---
+title: "Candy Cleaning"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, include=FALSE}
+library(here)
+library(readxl)
+library(tidyverse)
+```
+
+
+```{r, include=FALSE}
+#test where the top level of the project directory is 
+here::here()
+
+candy_data_final <- read_csv(here("clean_data/candy_data_final.csv"))
+```
+
+
+# Dataset Introduction
+
+The Dataset gave the opinion of a number of different sweets by a sample 
+of the population from various countries across the world.
+
+I've made the assumption that all the items in '[]' were indeed sweets in the
+'15 & '16 data sets as were those items for Q6 in the '17 data set.
+Also in the '15 data set gender, country were not recorded, so they've have been
+included as 'NA'.  The age of participants varied considerably with some clearly
+fictious values provided. Therefore only ages from 0-99 were included in any 
+age-related calculations, others were set to 'NA'.  Countries were considered as
+America, Canada, UK or other, where a specific country was required,
+therefore all countries not considered one of the inital three as placed in a 
+larger 'bucket'.
+
+
+The steps to clean the data, with appropriate comments, are provided in a
+separate script. 
+&nbsp;
+&nbsp;
+&nbsp;
+# Analysis
+&nbsp;
+&nbsp;
+&nbsp;
+### 1. What is the total number of candy ratings given across the three years. (number of candy ratings, not number of raters. Don’t count missing values)
+
+```{r}
+
+#returns the number of opinions given which are not NA
+candy_data_final %>%
+    filter(!is.na(opinion)) %>% 
+    summarise(count = n())
+```
+
+### Answer:  The total number of ratings was 772, 352
+
+
+&nbsp;
+&nbsp;
+&nbsp;
+
+
+### 2. What was the average age of people who are going out trick or treating and the average age of people not going trick or treating?
+```{r}
+
+
+#answer when going out trick or treating
+candy_data_final %>%
+  filter(trick_or_treat == "Yes") %>% 
+  summarise(average_age = median(age, na.rm = TRUE))
+
+#answer when not going out trick or treating
+candy_data_final %>%
+  filter(trick_or_treat == "No") %>% 
+  summarise(average_age = median(age, na.rm = TRUE))
+
+
+```
+
+### Answer:  The average of those going out is 37, the average of those not is 38 
+&nbsp;
+&nbsp;
+&nbsp;
+
+### 3. For each of joy, despair and meh, which candy bar revived the most of these ratings?
+```{r}
+
+candy_data_final %>% 
+    filter(grepl("[Bb][Aa][Rr]", sweets)) %>% 
+    filter(!is.na(opinion)) %>% 
+    group_by(opinion, sweets) %>% 
+    summarise(count = n()) %>% 
+    filter(count == max(count)) %>% 
+    arrange(desc(count))
+```
+### Answer: 'Any full sized candy bar' received the most positive ratings (7589),'Reggie Jackson Bar' received the most negative reviews (4506),'100 Grand Bar' received the most indifferent reviews (1307)
+&nbsp;
+&nbsp;
+&nbsp;
+
+### 4. How many people rated Starburst as despair?
+```{r}
+  
+candy_data_final %>%
+    filter(grepl("[Ss][Tt][Aa][Rr][Bb][Uu][Rr][Ss][Tt]", sweets)) %>%
+    filter(opinion == "DESPAIR") %>%
+    summarise(count = n())
+  
+```
+### Answer:  the number of negative ratings for Starburst was 1990
+&nbsp;
+&nbsp;
+&nbsp;
+
+### Where is question 5????????
+&nbsp;
+&nbsp;
+&nbsp;
+
+### 6. What was the most popular candy bar by this rating system for each gender in the dataset?
+
+```{r}
+candy_data_final %>%
+    filter(!is.na(gender)) %>% 
+    filter(grepl("[Bb][Aa][Rr]", sweets)) %>%
+    filter(!is.na(opinion_int)) %>%
+    group_by(gender, sweets) %>% 
+    summarise(popularity = sum(opinion_int)) %>% 
+    filter(popularity == max(popularity)) %>% 
+    arrange(desc(popularity))
+
+
+```
+
+### Answer: For all three genders listed, 'Any full sized candy bar' was the most popular
+&nbsp;
+&nbsp;
+&nbsp;
+
+
+### 7. What was the most popular candy bar in each year?
+
+```{r}
+candy_data_final %>%
+    filter(grepl("[Bb][Aa][Rr]", sweets)) %>%
+    filter(!is.na(opinion_int)) %>%
+    group_by(year, sweets) %>% 
+    summarise(popularity = sum(opinion_int)) %>% 
+    filter(popularity == max(popularity)) %>% 
+    arrange(desc(year))
+```
+
+### Answer: For all three years , 'Any full sized candy bar' was the most popular 
+
+&nbsp;
+&nbsp;
+&nbsp;
+
+### 8. What was the most popular candy bar by this rating for people in US, Canada, UK and all other countries?
+
+```{r}
+candy_data_final %>%
+    filter(!is.na(country_subset)) %>% 
+    filter(grepl("[Bb][Aa][Rr]", sweets)) %>%
+    filter(!is.na(opinion_int)) %>%
+    group_by(country_subset, sweets) %>% 
+    summarise(popularity = sum(opinion_int)) %>% 
+    filter(popularity == max(popularity)) %>% 
+    arrange(desc(popularity))
+```
+
+### Answer: In all 3 countries 'Any full sized candy bar' was the most popular, it was also most popular in the 'other' country category.
+
+
+
